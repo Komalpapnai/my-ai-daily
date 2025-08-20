@@ -4,7 +4,7 @@ AI Daily Assistant is a smart AI-powered task scheduler that helps users plan an
 It takes user input such as tasks, duration, deadlines, and priorities, then generates an optimized daily plan with breaks and reminders.
 The goal of this project is to improve productivity and time management using simple yet powerful AI logic.
 
-#Features:
+Features:
 Add, edit, and delete tasks easily
 AI-generated daily plan based on duration, deadlines, and priorities
 Supports AM/PM time input for flexible day planning
@@ -13,12 +13,12 @@ Automatic breaks after work sessions
 Responsive and clean UI built with Tailwind CSS
 Handles tasks without duration/priority intelligently
 
-#Tech Stack:
+Tech Stack:
 Frontend: HTML, CSS (Tailwind), JavaScript
 Icons: Font Awesome
 AI Logic: Custom scheduling algorithm (JavaScript)
 
-#How It Works:
+How It Works:
 User enters tasks with optional details: duration, deadline, priority.
 AI logic arranges tasks into the available day slots.
 Breaks are automatically inserted after long working sessions.
