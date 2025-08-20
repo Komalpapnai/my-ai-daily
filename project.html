@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Daily Assistant</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/7e6a1c7f2c.js" crossorigin="anonymous"></script>
+  <style>
+    /* Tweak: constrain any images so they never look huge */
+    img { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 min-h-screen flex items-center justify-center font-sans">
+
+  <!-- ===================== AUTH ===================== -->
+  <div id="auth-container" class="w-full max-w-md p-6 bg-white rounded-2xl shadow-lg">
+    <div class="flex items-center justify-center mb-4">
+      <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/21bde1c5-f72e-47c4-957f-5b2103237eed.png" alt="AI Assistant logo" class="w-16 h-16 rounded-full shadow"/>
+    </div>
+    <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">AI Daily Assistant</h1>
+
+    <!-- Login -->
+    <div id="login-form">
+      <h2 class="text-xl font-semibold mb-4">Login</h2>
+      <form class="space-y-4" id="email-login-form">
+        <input type="email" id="login-email" placeholder="Email" class="w-full p-2 border rounded-lg" required>
+        <div class="relative">
+          <input type="password" id="login-password" placeholder="Password" class="w-full p-2 border rounded-lg" required>
+          <button type="button" id="toggleLoginPassword" class="absolute inset-y-0 right-2 flex items-center text-gray-500">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Login</button>
+      </form>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t"></div></div>
+        <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-gray-500">Or continue with</span></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button id="google-btn" class="w-full flex items-center justify-center px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <img src="https://img.icons8.com/color/48/google-logo.png" alt="Google" class="w-5 h-5 mr-2"/>
+          Google
+        </button>
+        <button id="apple-btn" class="w-full flex items-center justify-center px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <i class="fab fa-apple mr-2 text-xl"></i>
+          Apple
+        </button>
+      </div>
+
+      <p class="text-sm mt-4 text-center">Don't have an account?
+        <button id="show-signup" class="text-indigo-600">Sign up</button>
+      </p>
+    </div>
+
+    <!-- Signup -->
+    <div id="signup-form" class="hidden">
+      <h2 class="text-xl font-semibold mb-4">Sign Up</h2>
+      <form class="space-y-4" id="email-signup-form">
+        <input type="text" id="signup-name" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
+        <input type="email" id="signup-email" placeholder="Email" class="w-full p-2 border rounded-lg" required>
+        <div class="relative">
+          <input type="password" id="signup-password" placeholder="Password" class="w-full p-2 border rounded-lg" required>
+          <button type="button" id="toggleSignupPassword" class="absolute inset-y-0 right-2 flex items-center text-gray-500">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Sign Up</button>
+      </form>
+      <p class="text-sm mt-4 text-center">Already have an account?
+        <button id="show-login" class="text-indigo-600">Login</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div id="dashboard" class="hidden w-full max-w-5xl p-6 bg-white rounded-2xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-3">
+        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/05e78667-1ac8-495c-a8e6-b124bdbc128d.png" alt="Avatar" class="w-10 h-10 rounded-full"/>
+        <h2 class="text-2xl font-bold text-indigo-700">Welcome, <span id="username"></span></h2>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button id="notification-btn" class="relative">
+          <i class="fas fa-bell text-2xl text-gray-600"></i>
+          <span class="notification-badge absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full hidden"></span>
+        </button>
+        <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Logout</button>
+      </div>
+    </div>
+
+    <!-- AI Suggestions -->
+    <div class="mb-6">
+      <div class="flex flex-wrap gap-2 items-center">
+        <button id="ai-suggest-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+          Get AI Daily Plan
+        </button>
+        <button id="copy-plan-btn" class="px-3 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-copy mr-1"></i> Copy Plan
+        </button>
+        <div class="text-sm text-gray-500">
+          <span class="mr-2">Day start: <input id="day-start" type="time" value="08:00 AM" placeholder="hh:mm AM/PM" class="border rounded px-1 py-0.5"></span>
+          <span>Day end: <input id="day-end" type="time" value="21:00 PM" placeholder="hh:mm AM/PM" class="border rounded px-1 py-0.5"></span>
+        </div>
+      </div>
+      <div id="ai-response" class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg hidden"></div>
+    </div>
+
+    <!-- Tasks -->
+    <div>
+      <div class="flex justify-between mb-4">
+        <h3 class="text-xl font-semibold">Your Tasks</h3>
+        <button id="add-task-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">+ Add Task</button>
+      </div>
+      <ul id="task-list" class="space-y-3"></ul>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden transition-opacity duration-300">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg transform scale-95 transition-transform duration-300">
+      <h3 class="text-xl font-bold mb-4" id="modal-title">Add Task</h3>
+      <form id="task-form" class="space-y-4">
+        <input type="text" id="task-name" placeholder="Task Name" class="w-full p-2 border rounded-lg" required>
+        <textarea id="task-desc" placeholder="Description" class="w-full p-2 border rounded-lg"></textarea>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm text-gray-600">Due Date</label>
+            <input type="date" id="task-date" class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">Deadline Time (optional)</label>
+            <input type="time" id="task-time" class="w-full p-2 border rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-1">
+            <label class="text-sm text-gray-600">Priority</label>
+            <select id="task-priority" class="w-full p-2 border rounded-lg">
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="text-sm text-gray-600">Duration (mins)</label>
+            <input type="number" id="task-duration" min="5" step="5" placeholder="e.g., 45" class="w-full p-2 border rounded-lg">
+          </div>
+        </div>
+
+        <select id="task-category" class="w-full p-2 border rounded-lg">
+          <option value="Work">Work</option>
+          <option value="Study">Study</option>
+          <option value="Personal">Personal</option>
+        </select>
+
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" id="close-task-modal" class="px-4 py-2 border rounded-lg">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div id="notification-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+      <h3 class="text-xl font-bold mb-4">Notifications</h3>
+      <ul id="notification-list" class="space-y-2"></ul>
+      <button id="close-notification-modal" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg">Close</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <!-- Firebase (Compat for simpler inline usage) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+
+  <script>
+    // ======= CONFIGURE THIS WITH YOUR FIREBASE KEYS =======
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID",
+    };
+
+    let firebaseReady = false;
+    try {
+      if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+        firebase.initializeApp(firebaseConfig);
+        firebaseReady = true;
+      }
+    } catch (e) { console.warn('Firebase init skipped:', e); }
+  </script>
+
+  <script>
+    // ===== BASIC EMAIL AUTH (localStorage fallback) + FIREBASE OAUTH =====
+    const authContainer = document.getElementById("auth-container");
+    const dashboard = document.getElementById("dashboard");
+    const usernameEl = document.getElementById("username");
+
+    const emailLoginForm = document.getElementById("email-login-form");
+    const emailSignupForm = document.getElementById("email-signup-form");
+    const showSignupBtn = document.getElementById("show-signup");
+    const showLoginBtn = document.getElementById("show-login");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    const googleBtn = document.getElementById("google-btn");
+    const appleBtn = document.getElementById("apple-btn");
+
+    // Local fallback store
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let currentUser = null;
+
+    showSignupBtn.addEventListener("click", () => {
+      document.getElementById("login-form").classList.add("hidden");
+      document.getElementById("signup-form").classList.remove("hidden");
+    });
+    showLoginBtn.addEventListener("click", () => {
+      document.getElementById("signup-form").classList.add("hidden");
+      document.getElementById("login-form").classList.remove("hidden");
+    });
+
+    // Email + Password (fallback, demo only)
+    emailSignupForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("signup-name").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+      if (users.find(u => u.email === email)) return alert("User already exists");
+      users.push({ name, email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Signup successful! Please login.");
+      showLoginBtn.click();
+    });
+
+    emailLoginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      const user = users.find(u => u.email === email && u.password === password);
+      if (!user) return alert("Invalid credentials!");
+      finishLogin({ name: user.name || 'User', email: user.email });
+    });
+
+    // Firebase OAuth helpers
+    function signInWithPopupOrRedirect(provider) {
+      if (!firebaseReady) {
+        alert('OAuth not configured. Add your Firebase config first.');
+        return Promise.reject('firebase not ready');
+      }
+      return firebase.auth().signInWithPopup(provider).catch(err => {
+        // iOS/Safari often blocks popups: fall back to redirect
+        if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request')) {
+          return firebase.auth().signInWithRedirect(provider);
+        }
+        throw err;
+      });
+    }
+
+    if (firebaseReady) {
+      // Persist session
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+      // Google
+      const googleProvider = new firebase.auth.GoogleAuthProvider();
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
+      googleBtn.addEventListener('click', async () => {
+        try {
+          const res = await signInWithPopupOrRedirect(googleProvider);
+          if (res && res.user) finishLogin({
+            name: res.user.displayName || 'User',
+            email: res.user.email,
+            photoURL: res.user.photoURL
+          });
+        } catch (e) { console.error(e); alert(e.message || 'Google sign-in failed'); }
+      });
+
+      // Apple (requires Apple Services ID + redirect in Firebase console)
+      const appleProvider = new firebase.auth.OAuthProvider('apple.com');
+      appleProvider.addScope('email');
+      appleProvider.addScope('name');
+      appleBtn.addEventListener('click', async () => {
+        try {
+          const res = await signInWithPopupOrRedirect(appleProvider);
+          if (res && res.user) finishLogin({
+            name: res.user.displayName || 'Apple User',
+            email: res.user.email || 'hidden@apple.com',
+            photoURL: null
+          });
+        } catch (e) { console.error(e); alert(e.message || 'Apple sign-in failed'); }
+      });
+
+      // On page load (for redirect flow)
+      firebase.auth().getRedirectResult().then(res => {
+        if (res && res.user) finishLogin({
+          name: res.user.displayName || 'User',
+          email: res.user.email,
+          photoURL: res.user.photoURL
+        });
+      }).catch(err => console.warn('Redirect result:', err));
+    } else {
+      // If Firebase not configured, still attach no-op click handlers to show helpful alert
+      googleBtn.addEventListener('click', () => alert('Add Firebase config to enable Google login.'));
+      appleBtn.addEventListener('click', () => alert('Add Firebase config + Apple Services ID to enable Apple login.'));
+    }
+
+    // Common login success
+    function finishLogin(profile) {
+      currentUser = profile;
+      usernameEl.textContent = profile.name || 'User';
+      authContainer.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+      loadTasks();
+      updateNotificationBadge();
+    }
+
+    // Logout
+    logoutBtn.addEventListener("click", async () => {
+      try { if (firebaseReady) await firebase.auth().signOut(); } catch(_) {}
+      currentUser = null;
+      authContainer.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+    });
+
+    // Password toggle utility
+    function togglePassword(inputId, buttonId) {
+      const input = document.getElementById(inputId);
+      const button = document.getElementById(buttonId);
+      button.addEventListener("click", () => {
+        if (input.type === "password") {
+          input.type = "text";
+          button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+          input.type = "password";
+          button.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+      });
+    }
+    togglePassword("login-password", "toggleLoginPassword");
+    togglePassword("signup-password", "toggleSignupPassword");
+  </script>
+
+  <script>
+    // ================== TASKS + SMART AI SCHEDULER ==================
+    const taskList = document.getElementById("task-list");
+    const taskModal = document.getElementById("task-modal");
+    const taskForm = document.getElementById("task-form");
+    const addTaskBtn = document.getElementById("add-task-btn");
+    const closeTaskModal = document.getElementById("close-task-modal");
+
+    let tasks = [];
+
+    addTaskBtn.addEventListener("click", () => {
+      taskForm.reset();
+      document.getElementById("modal-title").textContent = "Add Task";
+      delete taskForm.dataset.editingTaskId;
+      taskModal.classList.remove("hidden");
+    });
+
+    closeTaskModal.addEventListener("click", () => taskModal.classList.add("hidden"));
+
+    function renderTask(task) {
+      const li = document.createElement("li");
+      li.className = `p-4 border rounded-lg flex justify-between items-center ${task.completed ? 'bg-green-100' : 'bg-gray-50'}`;
+      li.innerHTML = `
+        <div>
+          <h4 class="font-semibold">${task.name}</h4>
+          <p class="text-sm text-gray-600">${task.description || ""}</p>
+          <p class="text-xs text-gray-500">
+            ${task.dueDate || "No date"} ${task.dueTime || ""} |
+            ${task.priority || "Medium"} |
+            ${task.category || "General"} |
+            ${task.duration ? task.duration + " mins" : "auto duration"}
+          </p>
+        </div>
+        <div class="space-x-2">
+          <button class="edit-btn text-blue-600">Edit</button>
+          <button class="delete-btn text-red-600">Delete</button>
+          <button class="complete-btn text-green-600">${task.completed ? "Undo" : "Done"}</button>
+        </div>
+      `;
+
+      li.querySelector(".edit-btn").addEventListener("click", () => {
+        document.getElementById("task-name").value = task.name;
+        document.getElementById("task-desc").value = task.description;
+        document.getElementById("task-date").value = task.dueDate || "";
+        document.getElementById("task-time").value = task.dueTime || "";
+        document.getElementById("task-priority").value = task.priority || "Medium";
+        document.getElementById("task-duration").value = task.duration || "";
+        document.getElementById("task-category").value = task.category || "Work";
+        taskForm.dataset.editingTaskId = task.id;
+        document.getElementById("modal-title").textContent = "Edit Task";
+        taskModal.classList.remove("hidden");
+      });
+
+      li.querySelector(".delete-btn").addEventListener("click", () => {
+        tasks = tasks.filter(t => t.id !== task.id);
+        saveTasks();
+        li.remove();
+      });
+
+      li.querySelector(".complete-btn").addEventListener("click", () => {
+        task.completed = !task.completed;
+        saveTasks();
+        rerenderTasks();
+      });
+
+      taskList.appendChild(li);
+    }
+
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const taskId = taskForm.dataset.editingTaskId;
+      const durationVal = document.getElementById("task-duration").value;
+      const taskData = {
+        name: document.getElementById("task-name").value.trim(),
+        description: document.getElementById("task-desc").value.trim(),
+        dueDate: document.getElementById("task-date").value || null,
+        dueTime: document.getElementById("task-time").value || null,
+        priority: document.getElementById("task-priority").value,
+        duration: durationVal ? parseInt(durationVal, 10) : null,
+        category: document.getElementById("task-category").value,
+      };
+
+      if (taskId) {
+        const idx = tasks.findIndex(t => t.id === taskId);
+        tasks[idx] = { ...tasks[idx], ...taskData };
+      } else {
+        tasks.push({ id: Date.now().toString(), ...taskData, completed: false, createdAt: new Date().toISOString() });
+      }
+
+      saveTasks();
+      rerenderTasks();
+      taskForm.reset();
+      delete taskForm.dataset.editingTaskId;
+      taskModal.classList.add("hidden");
+    });
+
+    function rerenderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach(renderTask);
+    }
+
+    function saveTasks() {
+      if (currentUser && currentUser.email) {
+        localStorage.setItem(currentUser.email + "_tasks", JSON.stringify(tasks));
+      }
+    }
+
+    function loadTasks() {
+      if (currentUser && currentUser.email) {
+        const stored = localStorage.getItem(currentUser.email + "_tasks");
+        tasks = stored ? JSON.parse(stored) : [];
+        rerenderTasks();
+      }
+    }
+
+    // ===== SMART AI SCHEDULER =====
+    const aiBtn = document.getElementById("ai-suggest-btn");
+    const aiResponse = document.getElementById("ai-response");
+    const copyPlanBtn = document.getElementById("copy-plan-btn");
+    const dayStartInput = document.getElementById("day-start");
+    const dayEndInput = document.getElementById("day-end");
+
+    const PRIORITY_SCORE = { High: 3, Medium: 2, Low: 1 };
+
+    function roundUpTo5min(date) {
+      const d = new Date(date);
+      d.setSeconds(0, 0);
+      const minutes = d.getMinutes();
+      const remainder = minutes % 5;
+      if (remainder !== 0) d.setMinutes(minutes + (5 - remainder));
+      return d;
+    }
+
+    function parseTimeHM(baseDate, hhmm) {
+      const d = new Date(baseDate);
+      const [h, m] = hhmm.split(":").map(Number);
+      d.setHours(h, m || 0, 0, 0);
+      return d;
+    }
+
+    function fmtTime(d) {
+      const dt = new Date(d);
+      let h = dt.getHours();
+      const m = dt.getMinutes().toString().padStart(2, "0");
+      const ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12 || 12;
+      return `${h}:${m} ${ampm}`;
+    }
+
+    function defaultDurationByPriority(p) {
+      if (p === "High") return 60;
+      if (p === "Medium") return 40;
+      return 25; // Low
+    }
+
+    function taskDeadlineDateTime(task) {
+      if (!task.dueDate || !task.dueTime) return null;
+      return parseTimeHM(task.dueDate, task.dueTime);
+    }
+
+    function sortTasksForScheduling(list) {
+      return [...list].sort((a, b) => {
+        const p = (PRIORITY_SCORE[b.priority] || 2) - (PRIORITY_SCORE[a.priority] || 2);
+        if (p !== 0) return p;
+        const ad = taskDeadlineDateTime(a);
+        const bd = taskDeadlineDateTime(b);
+        if (ad && bd) return ad - bd;
+        if (ad && !bd) return -1;
+        if (!ad && bd) return 1;
+        if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+        if (a.dueDate && !b.dueDate) return -1;
+        if (!a.dueDate && b.dueDate) return 1;
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+      });
+    }
+
+    function minutesUntil(end, from) {
+      return Math.max(0, Math.round((end - from) / 60000));
+    }
+
+    function buildSchedule({ tasks, dayStart, dayEnd, startFromNow }) {
+      let cursor = startFromNow ? roundUpTo5min(new Date()) : new Date(dayStart);
+      if (cursor < dayStart) cursor = new Date(dayStart);
+      if (cursor > dayEnd) cursor = new Date(dayStart);
+
+      const schedule = [];
+      let minutesSinceBreak = 0;
+      const overflow = [];
+
+      const list = sortTasksForScheduling(tasks);
+
+      for (const task of list) {
+        if (task.completed) continue;
+        const duration = Math.max(5, task.duration || defaultDurationByPriority(task.priority));
+        let minutesRemaining = duration;
+
+        while (minutesRemaining > 0) {
+          if (cursor >= dayEnd) {
+            overflow.push({ task, remaining: minutesRemaining });
+            minutesRemaining = 0;
+            break;
+          }
+
+          if (minutesSinceBreak >= 60) {
+            const breakEnd = new Date(cursor.getTime() + 10 * 60 * 1000);
+            if (breakEnd <= dayEnd) {
+              schedule.push({ type: "break", start: new Date(cursor), end: breakEnd, label: "Break" });
+              cursor = breakEnd;
+              minutesSinceBreak = 0;
+              continue;
+            }
+          }
+
+          const chunk = Math.min(
+            minutesRemaining,
+            60 - minutesSinceBreak,
+            Math.max(5, minutesUntil(dayEnd, cursor))
+          );
+          if (chunk <= 0) {
+            overflow.push({ task, remaining: minutesRemaining });
+            minutesRemaining = 0;
+            break;
+          }
+          const blockEnd = new Date(cursor.getTime() + chunk * 60 * 1000);
+
+          schedule.push({ type: "work", start: new Date(cursor), end: blockEnd, task });
+
+          cursor = blockEnd;
+          minutesSinceBreak += chunk;
+          minutesRemaining -= chunk;
+        }
+      }
+
+      return { schedule, overflow };
+    }
+
+    function planToHTML(plan) {
+      const { schedule, overflow } = plan;
+      if (schedule.length === 0) return "<p>No time slots available today. Try expanding your day or reducing task durations.</p>";
+
+      let html = `<div class="text-sm text-gray-600 mb-3">`;
+      const workMin = schedule.filter(s => s.type === 'work').reduce((sum, s) => sum + minutesUntil(s.end, s.start), 0);
+      const breakMin = schedule.filter(s => s.type === 'break').reduce((sum, s) => sum + minutesUntil(s.end, s.start), 0);
+      html += `Work: <span class="font-medium">${workMin} mins</span> · Breaks: <span class="font-medium">${breakMin} mins</span>`;
+      html += `</div>`;
+
+      html += `<div class="space-y-3">`;
+      schedule.forEach(item => {
+        const time = `${fmtTime(item.start)} - ${fmtTime(item.end)}`;
+        if (item.type === "break") {
+          html += `
+            <div class="p-3 rounded-lg border bg-amber-50 border-amber-200">
+              <div class="text-xs text-gray-500">${time}</div>
+              <div class="font-medium text-amber-800">Break • 10 minutes</div>
+            </div>`;
+        } else {
+          const t = item.task;
+          const tag = `<span class=\"text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-700\">${t.priority || "Medium"}</span>`;
+          const cat = `<span class=\"text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700\">${t.category || "General"}</span>`;
+          html += `
+            <div class="p-3 rounded-lg border bg-white border-gray-200">
+              <div class="text-xs text-gray-500">${time}</div>
+              <div class="font-semibold text-gray-800">${t.name}</div>
+              <div class="text-xs text-gray-500 mt-1">${cat} ${tag} • ${t.duration ? t.duration + " mins" : "auto duration"}</div>
+              ${t.dueDate || t.dueTime ? `<div class="text-xs text-gray-400 mt-0.5">Deadline: ${t.dueDate || ""} ${t.dueTime || ""}</div>` : ""}
+            </div>`;
+        }
+      });
+      html += `</div>`;
+
+      if (overflow.length > 0) {
+        html += `
+          <div class="mt-5 p-4 rounded-lg border border-yellow-200 bg-yellow-50">
+            <div class="font-semibold text-yellow-800 mb-1">Overflow (Schedule tomorrow):</div>
+            <ul class="list-disc list-inside text-sm text-yellow-900">
+              ${overflow.map(o => `<li>${o.task.name} — ${o.remaining} mins remaining</li>`).join("")}
+            </ul>
+          </div>`;
+      }
+
+      const quotes = [
+        "Small, consistent steps beat big, inconsistent sprints.",
+        "Prioritize, focus, and protect your energy.",
+        "Done is better than perfect — keep moving.",
+        "Deep work, short breaks, great momentum.",
+        "You’ve got this. One block at a time!"
+      ];
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      html += `<div class="mt-4 p-3 rounded bg-purple-50 border border-purple-200 text-purple-800 text-sm">💪 ${q}</div>`;
+
+      return html;
+    }
+
+    aiBtn.addEventListener("click", () => {
+      const incompletes = tasks.filter(t => !t.completed);
+      if (incompletes.length === 0) {
+        aiResponse.innerHTML = "<p>No pending tasks. Enjoy your day! 🎉</p>";
+        aiResponse.classList.remove("hidden");
+        return;
+      }
+
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10);
+      const dayStart = parseTimeHM(todayStr, dayStartInput.value || "08:00");
+      const dayEnd = parseTimeHM(todayStr, dayEndInput.value || "21:00");
+
+      const plan = buildSchedule({ tasks: incompletes, dayStart, dayEnd, startFromNow: true });
+      aiResponse.innerHTML = `<div class="font-bold text-purple-700 mb-2">Your Optimized Schedule</div>` + planToHTML(plan);
+      aiResponse.classList.remove("hidden");
+    });
+
+    copyPlanBtn.addEventListener("click", () => {
+      if (aiResponse.classList.contains("hidden")) {
+        alert("Generate a plan first.");
+        return;
+      }
+      const tmp = document.createElement("div");
+      tmp.innerHTML = aiResponse.innerText;
+      const text = tmp.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        copyPlanBtn.textContent = "Copied!";
+        setTimeout(() => (copyPlanBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copy Plan'), 1200);
+      });
+    });
+  </script>
+
+  <script>
+    // ================== Notifications ==================
+    const notificationBtn = document.getElementById("notification-btn");
+    const notificationModal = document.getElementById("notification-modal");
+    const notificationList = document.getElementById("notification-list");
+    const closeNotificationModal = document.getElementById("close-notification-modal");
+
+    let notifications = [
+      { message: "Welcome to AI Daily Assistant!", read: false },
+      { message: "Tip: Set durations for better scheduling.", read: false },
+    ];
+
+    function updateNotificationBadge() {
+      const unread = notifications.filter(n => !n.read).length;
+      const badge = document.querySelector(".notification-badge");
+      if (unread > 0) {
+        badge.textContent = unread;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+    }
+
+    notificationBtn.addEventListener("click", () => {
+      notificationList.innerHTML = "";
+      notifications.forEach(n => {
+        const li = document.createElement("li");
+        li.textContent = n.message;
+        li.className = "p-2 bg-gray-100 rounded";
+        notificationList.appendChild(li);
+        n.read = true;
+      });
+      updateNotificationBadge();
+      notificationModal.classList.remove("hidden");
+    });
+
+    closeNotificationModal.addEventListener("click", () => notificationModal.classList.add("hidden"));
+  </script>
+</body>
+</html>
