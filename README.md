@@ -24,3 +24,6 @@ AI logic arranges tasks into the available day slots.
 Breaks are automatically inserted after long working sessions.
 A personalized daily schedule is generated dynamically.
 Notifications and reminders keep the user on track throughout the day.
+
+This project is under active development.
+I am continuously working on adding more features and improving the scheduling logic.
